@@ -1,3 +1,3 @@
-abstract interface class Serializable<T> {
+abstract interface class Serializable {
   Map<String, dynamic> toMap();
 }

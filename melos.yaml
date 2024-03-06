@@ -1,0 +1,8 @@
+name: red_stone_project
+
+packages:
+  - . 
+    
+scripts:
+  analyze:
+    exec: dart analyze .

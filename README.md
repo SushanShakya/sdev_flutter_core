@@ -1,39 +1,147 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
-
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+[sdev_flutter_core] is a package for all the boilerplate code
+necessary when developing a flutter application.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+> Adapter interface
+> Common extensions for Date, Time, String
+> Navigation Utils
+> Responsiveness Utils
+> Storage Utils
+> Validator
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+Install the package as a dependency to start using it in your flutter app
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+### Date Extensions
 
 ```dart
-const like = 'sample';
+final date = DateTime.now();
+print(date.stringify);
 ```
 
-## Additional information
+### String Extensions
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+```dart
+"Message".showBottomSnackBar(context);
+```
+
+### Time Extensions
+
+```dart
+final time = TimeOfDay.now();
+time.stringify;
+```
+
+### Storing data easily via Storage classes
+
+#### Storing data to file
+
+```dart
+class Profile implements Serializable {
+    final String name;
+
+    Profile({required this.name});
+
+    @override
+    Map<String, dynamic> toMap() {
+        return {
+            "name": name,
+        };
+    }
+}
+```
+
+```dart
+class ProfileAdapter implements IAdapter<Profile, Map<String, dynamic>> {
+  @override
+  Profile convert(Map<String, dynamic> data) {
+    return Profile(name: data['name']);
+  }
+}
+```
+
+```dart
+class ProfileStoreRepo extends FileStoreRepo<Profile> {
+  ProfileStoreRepo({
+    super.filename = "profile.txt",
+  }) : super(adapter: ProfileAdapter());
+}
+```
+
+```dart
+final storeRepo = ProfileStoreRepo();
+final Profile p = await network.fetchProfile();
+await storeRepo.save(p);
+```
+
+```dart
+final storeRepo = ProfileStoreRepo();
+final savedProfile = await storeRepo.fetch();
+if(savedProfile == null) {
+    print("No saved Profile Found");
+}
+```
+
+#### Storing data to Shared Preferences
+
+```dart
+
+class Token implements Serializable {
+  final String accessToken;
+  Token({
+    required this.accessToken,
+  });
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      "access_token": accessToken,
+    };
+  }
+}
+
+class TokenAdapter implements IAdapter<Token, Map<String, dynamic>> {
+  @override
+  Token convert(Map<String, dynamic> data) {
+    return Token(accessToken: data['access_token']);
+  }
+}
+
+class TokenStoreRepo extends PrefsStoreRepo<Token> {
+  TokenStoreRepo({
+    required super.prefs,
+    super.key = "@token",
+  }) : super(adapter: TokenAdapter());
+}
+
+```
+
+
+```dart
+final storeRepo = TokenStoreRepo();
+final Token p = await network.login(email, password);
+await storeRepo.save(p);
+```
+
+```dart
+final storeRepo = TokenStoreRepo();
+final savedToken = await storeRepo.fetch();
+if(savedProfile == null) {
+    print("No saved Token Found");
+}
+```
+
+### Using validators
+
+```dart
+TextFormField(
+    validator: Validator.validateEmpty,
+)
+```
+
+
+## Additional information
